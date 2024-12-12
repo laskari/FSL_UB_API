@@ -405,32 +405,6 @@ def map_result1_final_output(result_dict_1, additional_info_dict, key_aggregated
 
     return updated_result_dict_1
 
-# def run_application(input_image_folder, output_ROI_folder, output_extraction_folder):
-#     root = os.getcwd()
-#     os.makedirs(output_ROI_folder, exist_ok=True)
-#     os.makedirs(output_extraction_folder, exist_ok=True)
-#     # image_list = os.listdir(os.path.join(root, input_image_folder))
-#     image_list = os.listdir(input_image_folder)
-#     for each_image in tqdm(image_list):
-#         image_path = os.path.join(input_image_folder, each_image)
-#         pil_image = Image.open(image_path).convert('RGB')
-#         to_tensor = transforms.ToTensor()
-#         image = to_tensor(pil_image)
-        
-#         print("Staring ROI extraction")
-#         # print(uploaded_file.)
-#         fasterrcnn_result_df = roi_model_inference(image_path, image)
-#         print("Staring data extraction")
-#         prediction, output = run_prediction_donut(image, model, processor)
-#         extraction_df = convert_predictions_to_df(prediction)
-
-#         output_ROI_path = os.path.join(root, output_ROI_folder,each_image.split(".")[0]+".xlsx" )
-#         fasterrcnn_result_df.to_excel(output_ROI_path, index=False)
-
-#         output_extraction_path = os.path.join(root, output_extraction_folder, each_image.split(".")[0]+".xlsx" )
-#         extraction_df.to_excel(output_extraction_path, index=False)
-
-
 # Load the models
 non_table_processor, non_table_model, table_processor, table_model, old_non_table_processor, old_non_table_model = load_model(device)
 

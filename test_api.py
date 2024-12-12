@@ -2,26 +2,27 @@ import requests
 import time
 import os
 # Define the URL of the API endpoint
-url = "http://0.0.0.0:8000/ub_extraction"
+url = "http://localhost:8000/ub_extraction"
 
 # Define the payload data as a dictionary
 data = {
-    "FilePath": r"/Data/FSL_codebase/FSL_UB_API/images/117C559YCZ001_001.tiff"
+    "FilePath": r"D:\project\FSL\FSL_codebase\api\UB\images\BSCCQ46IC006_001.tiff"
 }
 
 try:
     # Measure the start time
     start_time = time.time()
-    for img_name in os.listdir("/Data/FSL_codebase/FSL_UB_API/images/")[:2]:
-    # Make the POST request with the JSON payloads
-        if img_name.endswith(".tiff"):
-            print(img_name)
-            data = {
-                "FilePath": f"/Data/FSL_codebase/FSL_UB_API/images/{img_name}"
-            }
+    # for img_name in os.listdir(r"D:\project\FSL\FSL_codebase\api\UB\images")[:2]:
+    # # Make the POST request with the JSON payloads
+    #     if img_name.endswith(".tiff"):
+    #         print(img_name)
+    #         data = {
+    #             "FilePath": f"D:\project\FSL\FSL_codebase\api\UB\images{img_name}"
+    #         }
 
-            response = requests.post(url, json=data)
-
+    #         response = requests.post(url, json=data)
+    
+    response = requests.post(url, json=data)
     # Measure the total time taken for execution
     total_time_taken = time.time() - start_time
     print(start_time)
@@ -31,7 +32,7 @@ try:
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
         # Print the response content
-        # print("Response:", response.json())
+        print("Response:", response.json())
         print("Request was successful.")
     else:
         # If request was not successful, print error message
