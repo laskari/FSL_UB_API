@@ -8,7 +8,7 @@ from fastapi import FastAPI, File, UploadFile, Form
 import torch
 import json, os
 import sys
-from extraction_util import run_ub_pipeline
+from src.extraction_util import run_ub_pipeline
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

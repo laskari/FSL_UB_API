@@ -1,4 +1,4 @@
-from extraction_util import run_ub_pipeline
+from src.extraction_util import run_ub_pipeline
 
 
 
