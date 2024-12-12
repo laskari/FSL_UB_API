@@ -7,7 +7,7 @@ from typing import Annotated, Optional, List
 from fastapi import FastAPI, File, UploadFile, Form
 import torch
 import json, os
-
+import sys
 from extraction_util import run_ub_pipeline
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -61,5 +61,6 @@ async def ml_extraction(data: dict):
         )
 
 if __name__ == '__main__':
-    uvicorn.run("app:app", host="0.0.0.0", port=8001)
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
+    uvicorn.run("app:app", host="0.0.0.0", port=port)
 

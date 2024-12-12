@@ -18,16 +18,22 @@ import argparse
 import os
 import warnings
 from tqdm import tqdm
-ROOT = os.getcwd()
-artifacts = 'artifact'
 
 warnings.filterwarnings('ignore')
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-CATEGORY_MAPPING_PATH = os.path.join(ROOT, artifacts ,"notes.json")
-MODEL_PATH = os.path.join(ROOT, artifacts ,"ub__100.pth")
-UB_FORM_KEY_MAPPING = os.path.join(ROOT, artifacts ,"FSL_Forms_Keys.xlsx")
-UB_AVERAGE_COORDINATE_PATH = os.path.join(ROOT, artifacts ,"average_coordinates_ub.xlsx")
+# ROOT = os.getcwd()
+ROOT = "/Data/FSL_codebase/FSL_UB_API"
+artifact = 'artifact'
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+CATEGORY_MAPPING_PATH = os.path.join(ROOT, artifact, "notes.json")
+MODEL_PATH = os.path.join(ROOT, artifact, "ub__100.pth")
+UB_FORM_KEY_MAPPING = os.path.join(ROOT, artifact, "FSL_Forms_Keys.xlsx")
+UB_AVERAGE_COORDINATE_PATH = os.path.join(ROOT, artifact, "average_coordinates_ub.xlsx")
+KEYS_FROM_OLD = ['38_InsAddr1',
+  '38_InsCity',
+  '38_InsPostCode',
+  '38_InsState',]
 BBOX_DONUT_Mapping_Dict = {'1_Bill_Prov_Details': ['1_BillProvAddr1',
   '1_BillProvCity',
   '1_BillProvOrgName',
@@ -444,16 +450,19 @@ def load_model(device):
     try:
         # Load Non table model
         non_table_processor = AutoProcessor.from_pretrained("Laskari-Naveen/UB_Model_I")
-        non_table_model = VisionEncoderDecoderModel.from_pretrained("Laskari-Naveen/UB_Model_I", cache_dir= "/Data/FSL_prod_codebase/FSL_codebase/api/UB_V2/UB_Model_1")
+        non_table_model = VisionEncoderDecoderModel.from_pretrained("Laskari-Naveen/UB_Model_I", cache_dir= "/Data/FSL_codebase/FSL_UB_API/UB_Model_1")
         non_table_model.eval().to(device)
         print("Non Table Model loaded successfully")
         table_processor = AutoProcessor.from_pretrained("Laskari-Naveen/UB_Table_Model")
-        table_model = VisionEncoderDecoderModel.from_pretrained("Laskari-Naveen/UB_Table_Model", cache_dir= "/Data/FSL_prod_codebase/FSL_codebase/api/UB_V2/UB_Table_Model")
+        table_model = VisionEncoderDecoderModel.from_pretrained("Laskari-Naveen/UB_Table_Model", cache_dir= "/Data/FSL_codebase/FSL_UB_API/UB_Table_Model")
         table_model.eval().to(device)
         print("Table Model loaded successfully")
+        old_non_table_processor = AutoProcessor.from_pretrained("Laskari-Naveen/UB_2_P1")
+        old_non_table_model = VisionEncoderDecoderModel.from_pretrained("Laskari-Naveen/UB_2_P1", cache_dir= "/Data/FSL_codebase/FSL_UB_API/UB_Table_Model")
+        old_non_table_model.eval().to(device)
     except Exception as e:
         print(f"Model Loading failed !!! with error {e}")
-    return non_table_processor, non_table_model, table_processor, table_model
+    return non_table_processor, non_table_model, table_processor, table_model, old_non_table_processor, old_non_table_model
 
 
 def convert_predictions_to_df(prediction):
@@ -560,7 +569,22 @@ def map_result1_final_output(result_dict_1, additional_info_dict):
 
 
 # Load the models
-non_table_processor, non_table_model, table_processor, table_model = load_model(device)
+non_table_processor, non_table_model, table_processor, table_model, old_non_table_processor, old_non_table_model = load_model(device)
+
+def merge_donut_output(donut_out_old, donut_out_new, keys_from_old):
+    try:
+        print("In process of merging from OLD keys")
+        old_values_for_keys = donut_out_old.set_index("Key").loc[keys_from_old, 'Value'].to_dict()
+
+        donut_out_new['Value'] = donut_out_new.apply(
+            lambda row: old_values_for_keys.get(row['Key'], row['Value']),
+            axis = 1
+        )
+
+        return donut_out_new[['Key', 'Value']]
+    
+    except Exception as e:
+        raise e
 
 
 
@@ -581,8 +605,18 @@ def run_ub_pipeline(image_path: str):
         # print(donut_out)
 
         # What is this? Is it Mapping the donut keys to XML values? Can't understand.
-        for old_key, new_key in reverse_mapping_dict.items():
-            donut_out["Key"].replace(old_key, new_key, inplace=True)
+        # for old_key, new_key in reverse_mapping_dict.items():
+        #     donut_out["Key"].replace(old_key, new_key, inplace=True)
+
+        ####### OLD MODEL OUTPUT ########
+        prediction_old_non_table, output_old_non_table = run_prediction_donut(pil_image, old_non_table_model, old_non_table_processor)
+        donut_out_old = convert_predictions_to_df(prediction_old_non_table)
+        ###### MERGE OUTPUT OF OLD AND NEW #####
+        donut_out = merge_donut_output(donut_out_old, donut_out, KEYS_FROM_OLD)
+
+        print(donut_out[donut_out['Key'].isin(KEYS_FROM_OLD)])
+        print(donut_out['Key'].nunique())
+
         
         # This is just converting the dataframe to dictionary
         json_data = donut_out.to_json(orient='records')
@@ -643,7 +677,7 @@ def run_ub_pipeline(image_path: str):
         result_dict_1 = map_result1(output_dict_det, BBOX_DONUT_Mapping_Dict)
         # result_dict_2 = map_result2(output_dict_det, BBOX_DONUT_Mapping_Dict)
         final_mapping_dict  = map_result1_final_output(result_dict_1, output_dict_donut)
-
+        print(len(final_mapping_dict))
         return {"result": final_mapping_dict}, None
     except Exception as e:
         return None, str(e)

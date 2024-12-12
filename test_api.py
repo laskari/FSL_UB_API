@@ -2,22 +2,22 @@ import requests
 import time
 import os
 # Define the URL of the API endpoint
-url = "http://localhost:5002/ub_extraction"
+url = "http://0.0.0.0:8000/ub_extraction"
 
 # Define the payload data as a dictionary
 data = {
-    "FilePath": r"/Data/FSl_ML/Test_Data/UB_Test_data/BSCPRO/GRPNG2X/TIFF/PHP1245WC030_001.tiff"
+    "FilePath": r"/Data/FSL_codebase/FSL_UB_API/images/117C559YCZ001_001.tiff"
 }
 
 try:
     # Measure the start time
     start_time = time.time()
-    for img_name in os.listdir("/Data/FSl_ML/Test_Data/UB_Test_data/BSCPRO/GRPNG2X/TIFF")[:50]:
+    for img_name in os.listdir("/Data/FSL_codebase/FSL_UB_API/images/")[:2]:
     # Make the POST request with the JSON payloads
         if img_name.endswith(".tiff"):
             print(img_name)
             data = {
-                "FilePath": f"/Data/FSl_ML/Test_Data/UB_Test_data/BSCPRO/GRPNG2X/TIFF/{img_name}"
+                "FilePath": f"/Data/FSL_codebase/FSL_UB_API/images/{img_name}"
             }
 
             response = requests.post(url, json=data)
