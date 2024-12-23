@@ -1,0 +1,245 @@
+{
+  "categories": [
+    {
+      "id": 0,
+      "name": "10_PATIENT_DOB"
+    },
+    {
+      "id": 1,
+      "name": "11_PATIENT_SEX"
+    },
+    {
+      "id": 2,
+      "name": "12_ADMISSION_DETAILS"
+    },
+    {
+      "id": 3,
+      "name": "16_DISCHARGE_DETAILS"
+    },
+    {
+      "id": 4,
+      "name": "18_28_CONDITION_CODES"
+    },
+    {
+      "id": 5,
+      "name": "1_Bill_Prov_Details"
+    },
+    {
+      "id": 6,
+      "name": "29_State"
+    },
+    {
+      "id": 7,
+      "name": "2_PO_BOX"
+    },
+    {
+      "id": 8,
+      "name": "30_Label"
+    },
+    {
+      "id": 9,
+      "name": "31_OCCURENCE_CODE_DATE"
+    },
+    {
+      "id": 10,
+      "name": "32_OCCURENCE_CODE_DATE"
+    },
+    {
+      "id": 11,
+      "name": "33_OCCURENCE_CODE_DATE"
+    },
+    {
+      "id": 12,
+      "name": "34_OCCURENCE_CODE_DATE"
+    },
+    {
+      "id": 13,
+      "name": "35_OCCURENCE_CODE_SPAN"
+    },
+    {
+      "id": 14,
+      "name": "36_OCCURENCE_CODE_SPAN"
+    },
+    {
+      "id": 15,
+      "name": "37_Label"
+    },
+    {
+      "id": 16,
+      "name": "38_INSURRENCE_DETAILS"
+    },
+    {
+      "id": 17,
+      "name": "39_VALUE_CODES"
+    },
+    {
+      "id": 18,
+      "name": "3_PAT CNTL AND MED REC"
+    },
+    {
+      "id": 19,
+      "name": "40_VALUE_CODES"
+    },
+    {
+      "id": 20,
+      "name": "41_VALUE_CODES"
+    },
+    {
+      "id": 21,
+      "name": "42_49_TABLE"
+    },
+    {
+      "id": 22,
+      "name": "4_TYPE OF BILL"
+    },
+    {
+      "id": 23,
+      "name": "50_PAYER_NAME"
+    },
+    {
+      "id": 24,
+      "name": "51_Health_Plan_No"
+    },
+    {
+      "id": 25,
+      "name": "52_Label"
+    },
+    {
+      "id": 26,
+      "name": "53_ASG_BEN"
+    },
+    {
+      "id": 27,
+      "name": "54_PRIOR_PAYMENTS"
+    },
+    {
+      "id": 28,
+      "name": "55_Est_Amount_Due"
+    },
+    {
+      "id": 29,
+      "name": "56_NPI"
+    },
+    {
+      "id": 30,
+      "name": "57_OTHER_PRV_ID"
+    },
+    {
+      "id": 31,
+      "name": "58_INSURED_NAME"
+    },
+    {
+      "id": 32,
+      "name": "59_P.REL"
+    },
+    {
+      "id": 33,
+      "name": "5_FED_TAX_NO"
+    },
+    {
+      "id": 34,
+      "name": "60_INSURED_UNIQUE_ID"
+    },
+    {
+      "id": 35,
+      "name": "61_GROUP_NAME"
+    },
+    {
+      "id": 36,
+      "name": "62_INSURANCE_GROUP_NO"
+    },
+    {
+      "id": 37,
+      "name": "63_TREATMENT_AUTHORIZATION_CODES"
+    },
+    {
+      "id": 38,
+      "name": "64_Document_Control_Number"
+    },
+    {
+      "id": 39,
+      "name": "65_EMPLOYER_NAME"
+    },
+    {
+      "id": 40,
+      "name": "67_DX"
+    },
+    {
+      "id": 41,
+      "name": "68_Label"
+    },
+    {
+      "id": 42,
+      "name": "69_ADMT_DX"
+    },
+    {
+      "id": 43,
+      "name": "6_STATEMENT_COVERS_PERIOD"
+    },
+    {
+      "id": 44,
+      "name": "70_PATIENT_REASON_DX"
+    },
+    {
+      "id": 45,
+      "name": "71_ PPS_CODE"
+    },
+    {
+      "id": 46,
+      "name": "72_ECI"
+    },
+    {
+      "id": 47,
+      "name": "73_Label"
+    },
+    {
+      "id": 48,
+      "name": "74 PRINCIPAL_OTHER_PROCEDURE_CODE"
+    },
+    {
+      "id": 49,
+      "name": "75_Label"
+    },
+    {
+      "id": 50,
+      "name": "76_ATTENDING_DETAILS"
+    },
+    {
+      "id": 51,
+      "name": "77_OPERATING_DETAILS"
+    },
+    {
+      "id": 52,
+      "name": "78_OTHER_DETAILS"
+    },
+    {
+      "id": 53,
+      "name": "79_OTHER_DETAILS"
+    },
+    {
+      "id": 54,
+      "name": "7_Label"
+    },
+    {
+      "id": 55,
+      "name": "80_REMARKS"
+    },
+    {
+      "id": 56,
+      "name": "81_Label"
+    },
+    {
+      "id": 57,
+      "name": "8_PATIENT_NAME"
+    },
+    {
+      "id": 58,
+      "name": "9_PATIENT_ADDRESS"
+    }
+  ],
+  "info": {
+    "year": 2024,
+    "version": "1.0",
+    "contributor": "Label Studio"
+  }
+}
