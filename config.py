@@ -1,20 +1,24 @@
 import torch, os
 
 VERSION = "ub_v1.1"
-# ROOT = "/Data/FSL_codebase/FSL_UB_API"
-ROOT = r"D:\project\FSL\new_codebase\FSL_UB_API"
+ROOT = os.getcwd()
+# ROOT = r"D:\project\FSL\new_codebase\FSL_UB_API"
 artifact = 'artifacts'
-
+LOG_DIR = "logs"
+LOG_FILE = "UB_logs.log"
+LOGFILE_DIR = os.path.join(ROOT, LOG_DIR, LOG_FILE)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 CATEGORY_MAPPING_PATH = os.path.join(ROOT, artifact, "notes.json")
 MODEL_PATH = os.path.join(ROOT, artifact, "ub__100.pth")
 UB_FORM_KEY_MAPPING = os.path.join(ROOT, artifact, "FSL_Forms_Keys.xlsx")
 UB_AVERAGE_COORDINATE_PATH = os.path.join(ROOT, artifact, "average_coordinates_ub.xlsx")
+
 KEYS_FROM_OLD = ['38_InsAddr1',
   '38_InsCity',
   '38_InsPostCode',
   '38_InsState',]
+
 BBOX_DONUT_Mapping_Dict = {'1_Bill_Prov_Details': ['1_BillProvAddr1',
   '1_BillProvCity',
   '1_BillProvOrgName',
