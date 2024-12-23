@@ -429,15 +429,11 @@ def run_ub_pipeline(image_path: str):
 
         ####### OLD MODEL OUTPUT ########
         prediction_old_non_table, output_old_non_table, scores_old_non_table = run_prediction_donut(pil_image, old_non_table_model, old_non_table_processor)
-        key_aggregated_scoresold__non_table = calculate_key_aggregated_scores(scores_table, output_table, table_processor)
+        key_aggregated_scores_old_non_table = calculate_key_aggregated_scores(scores_old_non_table, output_old_non_table, old_non_table_processor)
         donut_out_old = convert_predictions_to_df(prediction_old_non_table)
         ###### MERGE OUTPUT OF OLD AND NEW #####
         donut_out = merge_donut_output(donut_out_old, donut_out, KEYS_FROM_OLD)
-        key_aggregated_scores = merge_key_aggregated_scores(key_aggregated_scoresold__non_table, key_aggregated_scores_table, KEYS_FROM_OLD)
-
-        print(donut_out[donut_out['Key'].isin(KEYS_FROM_OLD)])
-        print(donut_out['Key'].nunique())
-
+        key_aggregated_scores = merge_key_aggregated_scores(key_aggregated_scores_old_non_table, key_aggregated_scores_non_table, KEYS_FROM_OLD)
         
         # This is just converting the dataframe to dictionary
         json_data = donut_out.to_json(orient='records')

@@ -6,7 +6,7 @@ url = "http://localhost:8000/ub_extraction"
 
 # Define the payload data as a dictionary
 data = {
-    "FilePath": r"D:\project\FSL\FSL_codebase\api\UB\images\BSCCQ46IC006_001.tiff"
+    "FilePath": r"D:\project\FSL\new_codebase\FSL_UB_API\artifacts\HER9R42WC001_001 2.tiff"
 }
 
 try:

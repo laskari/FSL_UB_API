@@ -9,6 +9,7 @@ import torch
 import json, os
 import sys
 from src.extraction_util import run_ub_pipeline
+from config import *
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -48,7 +49,8 @@ async def ml_extraction(data: dict):
         
 
         # If there's no error, return the result with file path
-        response_data = {"file_path": data.get('FilePath'), "result": result['result']}
+        response_data = {"version": VERSION, "file_path": data.get('FilePath'), "result": result['result']}
+
         return JSONResponse(content=response_data)
 
     except Exception as e:

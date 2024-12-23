@@ -1,5 +1,6 @@
 import torch, os
 
+VERSION = "ub_v1.1"
 # ROOT = "/Data/FSL_codebase/FSL_UB_API"
 ROOT = r"D:\project\FSL\new_codebase\FSL_UB_API"
 artifact = 'artifacts'
