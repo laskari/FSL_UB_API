@@ -81,19 +81,19 @@ except Exception as e:
 
 # import requests
 
-# # Define the URL where the endpoint is hosted
-# url = "http://localhost:5001/hcfa_extraction"
+# Define the URL where the endpoint is hosted
+url = "http://localhost:8000/ub_extraction_streaming"
 
-# # Path to the file you want to upload
+# Path to the file you want to upload
 # file_path = r"D:\project\FSL\FSL_codebase\api\HCFA\images\117914B4AZ009_001_0.jpg"
 
-# # Open the file in binary mode
-# with open(file_path, "rb") as file:
-#     # Prepare the file to be uploaded
-#     files = {"file": file}
+# Open the file in binary mode
+with open(data["FilePath"], "rb") as file:
+    # Prepare the file to be uploaded
+    files = {"file": file}
 
-#     # Send the POST request with the file
-#     response = requests.post(url, files=files)
+    # Send the POST request with the file
+    response = requests.post(url, files=files)
 
-# # Print the response
-# print(response.json())
+# Print the response
+print(response.json())

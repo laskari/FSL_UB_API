@@ -36,7 +36,7 @@ async def ml_extraction(data: dict):
             raise HTTPException(status_code=400, detail=f"File not found: {image_file_path}")
 
         log_message(logger, f"File found: {image_file_path}. Running pipeline...", level="INFO")
-        result, error = run_ub_pipeline(image_file_path, logger, formatter)
+        result, error = run_ub_pipeline(file_name = image_file_path, logger = logger, formatter = formatter)
         
         if error:
             # If there's an error, raise HTTPException with status code 500 (Internal Server Error)
@@ -45,6 +45,41 @@ async def ml_extraction(data: dict):
 
         # If there's no error, return the result with file path
         response_data = {"version": VERSION, "file_path": data.get('FilePath'), "result": result['result']}
+
+        overall_elapsed_time = formatter.stop_timing(XELP_process_request)
+        log_message(logger, f"The pipeline process completed with Data extraction and ROI prediction", level="DEBUG", elapsed_time=overall_elapsed_time)
+        return JSONResponse(content=response_data)
+
+    except Exception as e:
+        log_message(logger, f"Error occurred: {e}", level="ERROR")
+        return JSONResponse(
+            status_code=500,
+            content=f"Error while processing Extraction {e}"
+        )
+
+@app.post("/ub_extraction_streaming")
+async def ml_extraction(file: UploadFile = File(...)):
+    try:
+        XELP_process_request = 'XELP_process_request'
+        formatter.start_timing(XELP_process_request)
+        log_message(logger, "Started UB ml_extraction", level="INFO")
+        
+        # Read the contents of the uploaded file
+        content = await file.read()
+
+        # Get file name
+        file_name = file.filename
+
+        log_message(logger, f"Running pipeline...", level="INFO")
+        result, error = run_ub_pipeline(content = content, logger = logger, formatter = formatter)
+        
+        if error:
+            # If there's an error, raise HTTPException with status code 500 (Internal Server Error)
+            log_message(logger, f"Error in pipeline: {error}", level="ERROR")
+            raise HTTPException(status_code=500, detail=error)
+
+        # If there's no error, return the result with file path
+        response_data = {"version": VERSION, "file_name": file_name, "result": result['result']}
 
         overall_elapsed_time = formatter.stop_timing(XELP_process_request)
         log_message(logger, f"The pipeline process completed with Data extraction and ROI prediction", level="DEBUG", elapsed_time=overall_elapsed_time)
