@@ -168,8 +168,9 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-artifact
+artifacts/
 images/
 UB_Model_1/*
 UB_Table_Model/*
 artifacts/ub__100.pth
+logs/

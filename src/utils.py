@@ -1,11 +1,9 @@
 from collections import defaultdict
 
-
 def merge_donut_output(donut_out_old, donut_out_new, keys_from_old):
     try:
         print("In process of merging from OLD keys")
         old_values_for_keys = donut_out_old.set_index("Key").loc[keys_from_old, 'Value'].to_dict()
-
         donut_out_new['Value'] = donut_out_new.apply(
             lambda row: old_values_for_keys.get(row['Key'], row['Value']),
             axis = 1

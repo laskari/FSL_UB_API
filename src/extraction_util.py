@@ -1,6 +1,5 @@
-import json
+import json, io
 import torch
-import io
 import torchvision
 import pandas as pd
 from torchvision.io import read_image
@@ -17,10 +16,9 @@ import torch
 import argparse
 import os
 import warnings
-from tqdm import tqdm
-
 from src.utils import merge_donut_output, merge_key_aggregated_scores
 from config import *
+from src.logger import *
 
 warnings.filterwarnings('ignore')
 # ROOT = os.getcwd()
@@ -142,7 +140,7 @@ class DentalRoiPredictor:
             predictions = self.model(image_tensor)
         return predictions
 
-    def predict_and_get_dataframe(self, image_path, image,  iou_thresh=0.5):
+    def predict_and_get_dataframe(self, image,  iou_thresh=0.5):
         predictions = self.predict_image(image)
         pred = predictions[0]
         pred_nms = self._apply_nms(pred, iou_thresh=iou_thresh)
@@ -158,11 +156,11 @@ class DentalRoiPredictor:
         scores_flat = pred_dict['scores'].reshape(-1)
 
         class_names = [self.category_mapping[label_id] for label_id in labels_flat]
-        num_predictions = len(boxes_flat)
-        file_name = [image_path.split(".")[0]] * num_predictions
+        # num_predictions = len(boxes_flat)
+        # file_name = [image_path.split(".")[0]] * num_predictions
 
         infer_df = pd.DataFrame({
-            'file_name': file_name,
+            # 'file_name': file_name,
             'x0': boxes_flat[:, 0],
             'y0': boxes_flat[:, 1],
             'x1': boxes_flat[:, 2],
@@ -178,9 +176,8 @@ class DentalRoiPredictor:
 # Load the RPI model
 frcnn_predictor = DentalRoiPredictor(MODEL_PATH)
 
-
-def roi_model_inference(image_path, image):
-    result_df = frcnn_predictor.predict_and_get_dataframe(image_path, image)
+def roi_model_inference(image):
+    result_df = frcnn_predictor.predict_and_get_dataframe(image)
     max_score_indices = result_df.groupby('class_name')['score'].idxmax()
     result_df = result_df.loc[max_score_indices]
     return result_df
@@ -410,34 +407,61 @@ non_table_processor, non_table_model, table_processor, table_model, old_non_tabl
 
 
 
-def run_ub_pipeline(image_path: str):
+def run_ub_pipeline(content: bytes = None, file_name: str = None, logger = None, formatter = None):
     try:
+        if not content and not file_name:
+            raise ValueError("Either content (image bytes) or file_name must be provided.")
+        
+        # Load content from file_name if not provided
+        if not content and file_name:
+            with open(file_name, "rb") as f:
+                content = f.read()
         # image_path = os.path.join(input_image_folder, each_image)
-        pil_image = Image.open(image_path).convert('RGB')
-        # pil_image = Image.open(io.BytesIO(image_path)).convert('RGB')
+        image_reading = "Image_reading"
+        formatter.start_timing(image_reading)
+        # pil_image = Image.open(image_path).convert('RGB')
+        pil_image = Image.open(io.BytesIO(content)).convert('RGB')
         to_tensor = transforms.ToTensor()
         image = to_tensor(pil_image)
-
+        im_read_time = formatter.stop_timing(image_reading)
+        log_message(logger, "Image_reading Completed", level="INFO", elapsed_time=im_read_time)
+        
+        Data_extraction_NT = "Non Table Fields Data Extraction "
+        formatter.start_timing(Data_extraction_NT)
         prediction_non_table, output_non_table, scores_non_table = run_prediction_donut(pil_image, non_table_model, non_table_processor)
         key_aggregated_scores_non_table = calculate_key_aggregated_scores(scores_non_table, output_non_table, non_table_processor)
+        data_extraction_time_nt = formatter.stop_timing(Data_extraction_NT)
+        log_message(logger, "Data Extraction and score computation non table fields", level="INFO", elapsed_time=data_extraction_time_nt)
+                
+        Data_extraction_T = "Table Data Extraction"
+        formatter.start_timing(Data_extraction_T)
         prediction_table, output_table, scores_table = run_prediction_donut(pil_image, table_model, table_processor)
         key_aggregated_scores_table = calculate_key_aggregated_scores(scores_table, output_table, table_processor)
+        
+        data_extraction_time_t = formatter.stop_timing(Data_extraction_NT)
+        log_message(logger, "Data Extraction and score computation for Table fields", level="INFO", elapsed_time=data_extraction_time_t)
+        
         prediction_non_table.update(prediction_table)
         key_aggregated_scores_non_table.update(key_aggregated_scores_table)
         #print(f'{image_path} {len(prediction_non_table)}')
         donut_out = convert_predictions_to_df(prediction_non_table)
 
         ####### OLD MODEL OUTPUT ########
+        Data_extraction_Old_model = "Old model Data Extraction"
+        formatter.start_timing(Data_extraction_Old_model)
+
         prediction_old_non_table, output_old_non_table, scores_old_non_table = run_prediction_donut(pil_image, old_non_table_model, old_non_table_processor)
-        key_aggregated_scoresold__non_table = calculate_key_aggregated_scores(scores_table, output_table, table_processor)
+        key_aggregated_scores_old_non_table = calculate_key_aggregated_scores(scores_old_non_table, output_old_non_table, old_non_table_processor)
         donut_out_old = convert_predictions_to_df(prediction_old_non_table)
+        
+        data_extraction_old_model = formatter.stop_timing(Data_extraction_Old_model)
+        log_message(logger, "Data Extraction and score computation using old model", level="INFO", elapsed_time=data_extraction_old_model)
+        
         ###### MERGE OUTPUT OF OLD AND NEW #####
+        Post_process_combine_multiple_models = "Post-process and combine output from multiple models"
+        formatter.start_timing(Post_process_combine_multiple_models)
         donut_out = merge_donut_output(donut_out_old, donut_out, KEYS_FROM_OLD)
-        key_aggregated_scores = merge_key_aggregated_scores(key_aggregated_scoresold__non_table, key_aggregated_scores_table, KEYS_FROM_OLD)
-
-        print(donut_out[donut_out['Key'].isin(KEYS_FROM_OLD)])
-        print(donut_out['Key'].nunique())
-
+        key_aggregated_scores = merge_key_aggregated_scores(key_aggregated_scores_old_non_table, key_aggregated_scores_non_table, KEYS_FROM_OLD)
         
         # This is just converting the dataframe to dictionary
         json_data = donut_out.to_json(orient='records')
@@ -457,18 +481,27 @@ def run_ub_pipeline(image_path: str):
                 # If the key doesn't exist, create a new list with the current value
                 output_dict_donut[key] = [{'value': value}]        
 
-        # This is just doing the ROI inference and converting DF to dict
-        res = roi_model_inference(image_path, image)
-        df_dict = res.to_dict(orient='records')
-        print("OD prediction --->>>", df_dict)
+        PP_and_combine_model = formatter.stop_timing(Post_process_combine_multiple_models)
+        log_message(logger, "Post processing and combining output from different models", level="INFO", elapsed_time=PP_and_combine_model)
         
+        # This is just doing the ROI inference and converting DF to dict
+        ROI_extraction = "ROI_extraction"
+        formatter.start_timing(ROI_extraction)
+
+        res = roi_model_inference(image)
+        df_dict = res.to_dict(orient='records')
+        # print("OD prediction --->>>", df_dict)
+        ROI_time = formatter.stop_timing(ROI_extraction)
+        log_message(logger, "ROI_extraction Completed", level="INFO", elapsed_time=ROI_time)
+
         # Implementing the average part here
         # Convert the average coordinates DataFrame to a dictionary for easy access
+        mapping_roi_donut = "Mappping Data Extraction and ROI"
+        formatter.start_timing(mapping_roi_donut)   
+        
         average_coordinates_dict = average_coordinates_ub_df.set_index('label').to_dict(orient='index')
-
         # Get all unique class names
         all_class_names = set(average_coordinates_ub_df['label'])
-
         # Initialize the output dictionary
         output_dict_det = {}
 
@@ -498,14 +531,12 @@ def run_ub_pipeline(image_path: str):
         result_dict_1 = map_result1(output_dict_det, BBOX_DONUT_Mapping_Dict)
         # result_dict_2 = map_result2(output_dict_det, BBOX_DONUT_Mapping_Dict)
         final_mapping_dict  = map_result1_final_output(result_dict_1, output_dict_donut, key_aggregated_scores)
-        print(len(final_mapping_dict))
+        Data_ex_roi_time = formatter.stop_timing(mapping_roi_donut)
+        log_message(logger, "Mapping extracted data and ROI", level="INFO", elapsed_time=Data_ex_roi_time)
+
         return {"result": final_mapping_dict}, None
     except Exception as e:
         return None, str(e)
-
-# with open('notes.json') as f:
-#     category_mapping = {c['id'] + 1: c['name'] for c in json.load(f)['categories']}
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Your application description")
