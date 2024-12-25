@@ -170,6 +170,6 @@ cython_debug/
 
 artifact
 images/
-UB_Model_1\
+UB_Model_1/*
 UB_Table_Model/*
 artifacts/ub__100.pth

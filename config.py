@@ -1,7 +1,7 @@
 import torch, os
 
 # ROOT = "/Data/FSL_codebase/FSL_UB_API"
-ROOT = r"D:\project\FSL\new_codebase\FSL_UB_API"
+ROOT = r"/Data/FSL_codebase/FSL_UB_API"
 artifact = 'artifacts'
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
