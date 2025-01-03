@@ -259,6 +259,10 @@ def calculate_key_aggregated_scores(scores, outputs, processor):
         # Decode the token
         token = processor.tokenizer.decode([token_id.item()], skip_special_tokens=False)
 
+        # Handle token when it's <one>
+        if token == "<one>":
+            token = "1"
+
         # Detect the start of a new key
         if token.startswith("<s_") and not token.startswith("</"):
 
